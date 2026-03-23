@@ -765,6 +765,167 @@ final_warning() {
   done
 }
 
+# ===================== PING SIMULATION =====================
+
+ping_sim() {
+  local target=$1 count=${2:-10}
+  local base_ms=$((RANDOM % 30 + 5))
+  printf "  ${C1}PING ${target} (${target}): 56 data bytes${RESET}\n"
+  for ((i=1; i<=count; i++)); do
+    local ms=$((base_ms + RANDOM % 15 - 7))
+    (( ms < 1 )) && ms=1
+    local ttl=$((64 - RANDOM % 10))
+    printf "  ${C4}64 bytes from ${target}: icmp_seq=${i} ttl=${ttl} time=${ms}.$(printf '%03d' $((RANDOM%999))) ms${RESET}\n"
+    sleep 0.15
+  done
+  printf "  ${C2}--- ${target} ping statistics ---${RESET}\n"
+  printf "  ${C4}${count} packets transmitted, ${count} received, 0%% packet loss${RESET}\n"
+  printf "  ${C4}rtt min/avg/max = ${base_ms}.$((RANDOM%500))/${base_ms}.$((RANDOM%500+500))/$((base_ms+12)).$((RANDOM%999)) ms${RESET}\n\n"
+}
+
+# ===================== TRACEROUTE SIMULATION =====================
+
+traceroute_sim() {
+  local target=$1
+  printf "  ${C2}traceroute to ${target}, 30 hops max, 60 byte packets${RESET}\n"
+  local hops=$((RANDOM % 8 + 8))
+  for ((i=1; i<=hops; i++)); do
+    local ip="$((RANDOM%223+1)).$((RANDOM%255)).$((RANDOM%255)).$((RANDOM%255))"
+    local ms1=$((i * 3 + RANDOM % 10))
+    local ms2=$((ms1 + RANDOM % 5))
+    local ms3=$((ms1 + RANDOM % 8))
+    if (( RANDOM % 8 == 0 )); then
+      printf "  ${CALERT} %2d  * * * Запрос тайм-аут | 请求超时 | Aikakatkaisu${RESET}\n" $i
+    elif (( i == hops )); then
+      printf "  ${C2} %2d  ${target}  ${ms1}.${RANDOM:0:3} ms  ${ms2}.${RANDOM:0:3} ms  ${ms3}.${RANDOM:0:3} ms${RESET}\n" $i
+    else
+      local names=("gw.provider.net" "core-rt.moscow.ru" "ix.beijing.cn" "relay.helsinki.fi" "tor-exit.onion.net" "backbone.eu" "cdn-node.dark.net" "proxy.shadow.io")
+      local name="${names[$((RANDOM % ${#names[@]}))]}"
+      printf "  ${C4} %2d  ${name} (${ip})  ${ms1}.${RANDOM:0:3} ms  ${ms2}.${RANDOM:0:3} ms  ${ms3}.${RANDOM:0:3} ms${RESET}\n" $i
+    fi
+    sleep 0.2
+  done
+  printf "\n"
+}
+
+# ===================== NETWORK TOPOLOGY ASCII =====================
+
+show_network_graph() {
+  local graph_id=$((RANDOM % 4))
+  printf "\n"
+  case $graph_id in
+    0)
+      printf "  ${CBORDER}╔══════════════════════ СЕТЕВАЯ КАРТА АТАКИ / 攻击网络图 ══════════════════════╗${RESET}\n"
+      printf "  ${CBORDER}║${RESET}                                                                          ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}   ${CALERT}[ATTACKER C2]${RESET}                                                      ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}   ${CALERT}185.234.218.42${RESET}         ${C4}Москва / 莫斯科${RESET}                          ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}        ${C1}│${RESET}                                                                ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}        ${C1}├──────────┐${RESET}                                                     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}        ${C1}│${RESET}          ${C1}│${RESET}                                                     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}   ${C2}[TOR RELAY]${RESET}  ${C2}[DNS TUNNEL]${RESET}                                          ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}   ${C4}*.onion${RESET}      ${C4}ns1.shadow.io${RESET}                                          ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}        ${C1}│${RESET}          ${C1}│${RESET}                                                     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}        ${C1}└────┬─────┘${RESET}                                                     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}             ${C1}│${RESET}                                                            ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}        ${C2}[PROXY EU]${RESET}     ${C4}Frankfurt${RESET}                                      ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}        ${C4}91.215.85.17${RESET}                                                     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}             ${C1}│${RESET}                                                            ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}     ${CALERT}[TARGET NETWORK]${RESET}   ${CALERT}<<< ВЫ ЗДЕСЬ / 你在这里 / OLET TÄÄLLÄ >>>${RESET}   ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}     ${CALERT}192.168.0.0/24${RESET}     ${CALERT}Madrid / 马德里${RESET}                         ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}        ${CALERT}│${RESET}    ${CALERT}│${RESET}    ${CALERT}│${RESET}                                                  ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}    ${CALERT}[Mac1]${RESET} ${CALERT}[Mac2]${RESET} ${CALERT}[Mac3]${RESET}   ${CALERT}ALL COMPROMISED / ВСЕ ВЗЛОМАНЫ 💀${RESET}     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}                                                                          ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}╚══════════════════════════════════════════════════════════════════════════════╝${RESET}\n"
+      ;;
+    1)
+      printf "  ${CBORDER}╔═══════════════ VERKKOLIIKENTEEN ANALYYSI / 网络流量分析 ═══════════════╗${RESET}\n"
+      printf "  ${CBORDER}║${RESET}                                                                     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C2}Bandwidth (MB/s)  Пропускная способность  带宽${RESET}                     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4}100 ┤${RESET}                                                  ${C4}╭─${RESET}       ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4} 90 ┤${RESET}                                             ${CALERT}╭───╯${RESET}        ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4} 80 ┤${RESET}                                        ${CALERT}╭────╯${RESET}            ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4} 70 ┤${RESET}                                   ${CALERT}╭────╯${RESET}                 ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4} 60 ┤${RESET}                              ${CALERT}╭────╯${RESET}                      ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4} 50 ┤${RESET}                         ${CALERT}╭────╯${RESET}                           ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4} 40 ┤${RESET}                    ${CALERT}╭────╯${RESET}                                ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4} 30 ┤${RESET}               ${C2}╭────╯${RESET}                                     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4} 20 ┤${RESET}          ${C2}╭────╯${RESET}                                          ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4} 10 ┤${RESET}     ${C1}╭────╯${RESET}                                               ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4}  0 ┤${C1}─────╯${RESET}                                                    ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4}    └──┬────┬────┬────┬────┬────┬────┬────┬────┬────┬──>${RESET}     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4}      -5m  -4m  -3m  -2m  -1m  NOW${RESET}                          ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}                                                                     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${CALERT}⚠ EXFILTRATION PEAK DETECTED | ПИКОВАЯ УТЕЧКА | 峰值泄露检测到${RESET}     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}                                                                     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}╚═════════════════════════════════════════════════════════════════════════╝${RESET}\n"
+      ;;
+    2)
+      printf "  ${CBORDER}╔══════════════════ PORTTISKANNAUS / 端口扫描结果 ══════════════════╗${RESET}\n"
+      printf "  ${CBORDER}║${RESET}                                                                  ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C2}PORT      STATE    SERVICE          ВЕРСИЯ / 版本${RESET}             ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4}─────────────────────────────────────────────────${RESET}             ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${CALERT}22/tcp    OPEN     ssh              OpenSSH 10.2${RESET}              ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${CALERT}80/tcp    OPEN     http             Apache 2.4.57${RESET}             ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${CALERT}443/tcp   OPEN     https            nginx 1.25.4${RESET}              ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${CALERT}3306/tcp  OPEN     mysql            MySQL 8.0.36${RESET}              ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${CALERT}5432/tcp  OPEN     postgresql       PostgreSQL 16.2${RESET}           ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C1}5900/tcp  OPEN     vnc              Apple Remote Desktop${RESET}     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C1}8080/tcp  OPEN     http-proxy       Squid 6.7${RESET}                ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C1}27017/tcp OPEN     mongodb          MongoDB 7.0.5${RESET}             ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${C4}─────────────────────────────────────────────────${RESET}             ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${CALERT}8 open ports — ALL EXPLOITABLE | ВСЕ УЯЗВИМЫ | 全部可利用 💀${RESET} ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}                                                                  ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}╚════════════════════════════════════════════════════════════════════╝${RESET}\n"
+      ;;
+    3)
+      printf "  ${CBORDER}╔════════════ YHTEYDEN TILA / СОСТОЯНИЕ СВЯЗИ / 连接状态 ════════════╗${RESET}\n"
+      printf "  ${CBORDER}║${RESET}                                                                    ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}    ${C2}[Hacker 1]${RESET}──${C1}TOR${RESET}──${C2}[Relay]${RESET}──${C1}VPN${RESET}──┐                            ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}    ${C4}Moscow${RESET}                         │                            ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}                                   ├──${CALERT}[YOUR MAC]${RESET} ${CALERT}💀 PWNED${RESET}        ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}    ${C2}[Hacker 2]${RESET}──${C1}DNS${RESET}──${C2}[Proxy]${RESET}──${C1}SSH${RESET}──┤  ${CALERT}${MACHINE_ID}${RESET}              ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}    ${C4}Beijing${RESET}                         │                            ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}                                   ├──${C1}[Camera]${RESET} ${CALERT}📸 STREAMING${RESET}      ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}    ${C2}[Hacker 3]${RESET}──${C1}P2P${RESET}──${C2}[Mesh]${RESET}───${C1}WS${RESET}───┤                            ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}    ${C4}Helsinki${RESET}                        │                            ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}                                   └──${C1}[Keylog]${RESET} ${CALERT}⌨️ RECORDING${RESET}      ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}                                                                    ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${CALERT}3 concurrent attack vectors | 3 вектора атаки | 3个攻击向量${RESET}     ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}  ${CALERT}Latency: Moscow 42ms | Beijing 185ms | Helsinki 28ms${RESET}          ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}║${RESET}                                                                    ${CBORDER}║${RESET}\n"
+      printf "  ${CBORDER}╚══════════════════════════════════════════════════════════════════════╝${RESET}\n"
+      ;;
+  esac
+  printf "\n"
+}
+
+# ===================== NETSTAT SIMULATION =====================
+
+netstat_sim() {
+  local duration=$1 end_time=$((SECONDS + duration))
+  printf "  ${C2}${BOLD}Active Internet connections (including servers)${RESET}\n"
+  printf "  ${C2}Proto  Local Address          Foreign Address        State       PID${RESET}\n"
+  printf "  ${C4}─────────────────────────────────────────────────────────────────────${RESET}\n"
+  local states=("ESTABLISHED" "ESTABLISHED" "ESTABLISHED" "SYN_SENT" "CLOSE_WAIT" "TIME_WAIT")
+  local protos=("tcp4" "tcp6" "udp4")
+  local procs=("sshd" "curl" "nc" "python3" "ruby" "node" "keylogger" "exfiltrator" "backdoor" "rootkit")
+  while [[ $SECONDS -lt $end_time ]]; do
+    local proto="${protos[$((RANDOM % ${#protos[@]}))]}"
+    local lport=$((RANDOM % 60000 + 1024))
+    local rip=$(random_ip)
+    local rport=$(random_port)
+    local state="${states[$((RANDOM % ${#states[@]}))]}"
+    local proc="${procs[$((RANDOM % ${#procs[@]}))]}"
+    local pid=$((RANDOM % 9000 + 1000))
+    if [[ "$state" == "ESTABLISHED" ]]; then
+      printf "  ${CALERT}%-6s *.%-20d ${rip}:%-14d %-12s ${proc}/${pid}${RESET}\n" "$proto" "$lport" "$rport" "$state"
+    else
+      printf "  ${C4}%-6s *.%-20d ${rip}:%-14d %-12s ${proc}/${pid}${RESET}\n" "$proto" "$lport" "$rport" "$state"
+    fi
+    sleep 0.1
+  done
+}
+
 # ===================== HACK FLOOD (fills screen after ASCII) =====================
 
 hack_flood() {
@@ -887,87 +1048,140 @@ show_ascii_art smiley
 sleep 2
 hack_flood 5
 
-# Phase 6: Network scan (35s)
+# Phase 6: Network scan (30s)
 clear_screen; printf "\n"
-network_scan 35
+network_scan 30
 
-# Phase 7: ASCII Art — Poop + flood
+# Phase 7: Ping targets + network graph
+clear_screen; printf "\n"
+printf "  ${CBORDER}╔══════════════════════════════════════════════════════════════╗${RESET}\n"
+printf "  ${CBORDER}║${RESET} ${C2}${BOLD} PING SWEEP — ОБНАРУЖЕНИЕ ЦЕЛЕЙ — 目标探测 ${HACK_ICON}${RESET}${CBORDER}                  ║${RESET}\n"
+printf "  ${CBORDER}╚══════════════════════════════════════════════════════════════╝${RESET}\n\n"
+ping_sim "$(random_ip)" 6
+ping_sim "192.168.0.1" 5
+ping_sim "$(random_ip)" 4
+show_network_graph
+sleep 2
+
+# Phase 8: ASCII Art — Poop + flood
 clear_screen
 show_ascii_art poop
 sleep 2
 hack_flood 5
 
-# Phase 8: Password cracking (30s)
+# Phase 9: Password cracking (25s)
 clear_screen; printf "\n"
-password_crack 30
+password_crack 25
 
-# Phase 9: ASCII Art — Ghost + flood
+# Phase 10: Traceroute + network graph
+clear_screen; printf "\n"
+printf "  ${CBORDER}╔══════════════════════════════════════════════════════════════╗${RESET}\n"
+printf "  ${CBORDER}║${RESET} ${CALERT}${BOLD} TRACEROUTE TO C2 — МАРШРУТ К СЕРВЕРУ — 追踪路由 ${HACK_ICON}${RESET}${CBORDER}            ║${RESET}\n"
+printf "  ${CBORDER}╚══════════════════════════════════════════════════════════════╝${RESET}\n\n"
+traceroute_sim "185.234.218.42"
+show_network_graph
+sleep 2
+
+# Phase 11: ASCII Art — Ghost + flood
 clear_screen
 show_ascii_art ghost
 sleep 2
 hack_flood 5
 
-# Phase 10: Decryption (25s)
+# Phase 12: Decryption (25s)
 clear_screen; printf "\n"
 decrypt_phase 25
 
-# Phase 11: ASCII Art — Kiss heart + flood
+# Phase 13: Netstat connections
+clear_screen; printf "\n"
+printf "  ${CBORDER}╔══════════════════════════════════════════════════════════════╗${RESET}\n"
+printf "  ${CBORDER}║${RESET} ${CALERT}${BOLD} ACTIVE CONNECTIONS — АКТИВНЫЕ СОЕДИНЕНИЯ — 活动连接 ${HACK_ICON}${RESET}${CBORDER}        ║${RESET}\n"
+printf "  ${CBORDER}╚══════════════════════════════════════════════════════════════╝${RESET}\n\n"
+netstat_sim 15
+show_network_graph
+sleep 2
+
+# Phase 14: ASCII Art — Kiss heart + flood
 clear_screen
 show_ascii_art kiss
 sleep 2
 hack_flood 5
 
-# Phase 12: Surveillance (18s)
+# Phase 15: Surveillance (18s)
 clear_screen; printf "\n"
 surveillance_phase 18
 
-# Phase 13: ASCII Art — Devil + flood
+# Phase 16: Ping to Moscow/Beijing/Helsinki
+clear_screen; printf "\n"
+printf "  ${CBORDER}╔══════════════════════════════════════════════════════════════╗${RESET}\n"
+printf "  ${CBORDER}║${RESET} ${C2}${BOLD} C2 LATENCY CHECK — ПРОВЕРКА СВЯЗИ С ЦУ — C2延迟检测 ${HACK_ICON}${RESET}${CBORDER}       ║${RESET}\n"
+printf "  ${CBORDER}╚══════════════════════════════════════════════════════════════╝${RESET}\n\n"
+printf "  ${CALERT}>>> MOSCOW C2 SERVER / МОСКОВСКИЙ СЕРВЕР / 莫斯科服务器${RESET}\n"
+ping_sim "185.234.218.42" 5
+printf "  ${CALERT}>>> BEIJING RELAY / ПЕКИНСКИЙ РЕТРАНСЛЯТОР / 北京中继站${RESET}\n"
+ping_sim "103.224.182.250" 5
+printf "  ${CALERT}>>> HELSINKI NODE / ХЕЛЬСИНКСКИЙ УЗЕЛ / 赫尔辛基节点${RESET}\n"
+ping_sim "91.215.85.17" 5
+show_network_graph
+sleep 2
+
+# Phase 17: ASCII Art — Devil + flood
 clear_screen
 show_ascii_art devil
 sleep 2
 hack_flood 5
 
-# Phase 14: Taunt scroll (20s)
+# Phase 18: Taunt scroll (15s)
 clear_screen
-taunt_scroll 20
+taunt_scroll 15
 
-# Phase 15: ASCII Art — Spider + flood
+# Phase 19: ASCII Art — Spider + flood
 clear_screen
 show_ascii_art spider
 sleep 2
 hack_flood 5
 
-# Phase 16: Data exfiltration (25s)
+# Phase 20: Data exfiltration (20s)
 clear_screen; printf "\n"
-exfil_phase 25
+exfil_phase 20
 
-# Phase 17: ASCII Art — Alien + flood
+# Phase 21: Traceroute to dark web + graph
+clear_screen; printf "\n"
+printf "  ${CBORDER}╔══════════════════════════════════════════════════════════════╗${RESET}\n"
+printf "  ${CBORDER}║${RESET} ${CALERT}${BOLD} DARKNET ROUTE — МАРШРУТ В ДАРКНЕТ — 暗网路由 ${HACK_ICON}${RESET}${CBORDER}               ║${RESET}\n"
+printf "  ${CBORDER}╚══════════════════════════════════════════════════════════════╝${RESET}\n\n"
+traceroute_sim "45.133.1.81"
+netstat_sim 10
+show_network_graph
+sleep 2
+
+# Phase 22: ASCII Art — Alien + flood
 clear_screen
 show_ascii_art alien
 sleep 2
 hack_flood 5
 
-# Phase 18: ASCII Art — Pirate + flood
+# Phase 23: ASCII Art — Pirate + flood
 clear_screen
 show_ascii_art pirate
 sleep 2
 hack_flood 5
 
-# Phase 19: Ransomware (18s)
+# Phase 24: Ransomware (15s)
 clear_screen; printf "\n"
-ransomware_phase 18
+ransomware_phase 15
 
-# Phase 20: ASCII Art — Bomb + flood
+# Phase 25: ASCII Art — Bomb + flood
 clear_screen
 show_ascii_art bomb
 sleep 2
 hack_flood 5
 
-# Phase 21: Matrix rain (8s)
+# Phase 26: Matrix rain (8s)
 clear_screen
 matrix_rain 8
 
-# Phase 22: Final skull + warning + flood
+# Phase 27: Final skull + warning + flood
 clear_screen
 show_ascii_art skull
 sleep 1

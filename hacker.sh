@@ -765,6 +765,65 @@ final_warning() {
   done
 }
 
+# ===================== HACK FLOOD (fills screen after ASCII) =====================
+
+hack_flood() {
+  local duration=$1 end_time=$((SECONDS + duration))
+  local flood_lines=(
+    "ВЗЛОМ ЗАВЕРШЕН | HACK COMPLETE | 黑客入侵完成 | HAKKEROINTI VALMIS"
+    ">>> ДАННЫЕ СКАЧАНЫ | 数据已下载 | TIEDOT LADATTU | DATA DOWNLOADED <<<"
+    "ПАРОЛЬ ВЗЛОМАН: admin:p@ssw0rd! | 密码破解: root:123456 | SALASANA MURRETTU"
+    "КАМЕРА АКТИВНА 📸 | 摄像头已开启 📸 | KAMERA AKTIIVINEN 📸"
+    "💩💩💩 СИСТЕМА ПОД КОНТРОЛЕМ | 系统已被控制 | JÄRJESTELMÄ HALLUSSA 💩💩💩"
+    "ФАЙЛ НАЙДЕН: /etc/shadow | 文件发现: ~/.ssh/id_rsa | TIEDOSTO: /var/db/secrets"
+    "ШИФРОВАНИЕ ОТКЛЮЧЕНО | 加密已禁用 | SALAUS POISTETTU | ENCRYPTION DISABLED"
+    "😈 ДЬЯВОЛ В СЕТИ | 魔鬼在线 | PAHOLAINEN VERKOSSA | DEVIL ONLINE 😈"
+    "ПЕРЕДАЧА: $(random_ip) -> $(random_ip) [$(random_hex)$(random_hex)] 🔥"
+    "БАНК ДАННЫХ ОТКРЫТ | 数据银行已打开 | TIETOPANKKI AVATTU | DB DUMPED"
+    "☠️ РУТКИТ УСТАНОВЛЕН | 后门已安装 | ROOTKIT ASENNETTU | ROOTKIT INSTALLED ☠️"
+    "KEYLOGGER >>>>>>> буфер: $((RANDOM%9000+1000)) символов | $((RANDOM%9000+1000))个字符"
+    "💋 ЦЕЛУЕМ | 亲亲 | PUSUJA | KISSES 💋💋💋"
+    "GPS: 40.4168°N 3.7038°W — МАДРИД | 马德里 | MADRID | LOKALISOITU 📍"
+    "EXFIL: $((RANDOM%999+100))MB -> tor://$(random_hex).onion 🕸️"
+    "WiFi ПАРОЛЬ: Adm1r4_2026! | WiFi密码已获取 | WiFi-SALASANA SAATU 📶"
+    "🐻 МЕДВЕДЬ ГОЛОДЕН | 熊饿了 | KARHU ON NÄLKÄINEN | BEAR IS HUNGRY 🐻"
+    "iCLOUD TOKEN CAPTURED | ТОКЕН ЗАХВАЧЕН | 令牌已捕获 | TOKENI KAAPATTU"
+    "💩 POO DEPLOYED TO /System/Library/ | 💩 已部署到系统目录 | 💩 ASENNETTU"
+    "MICROPHONE STREAM: rtmp://$(random_ip):1935/mic_$(random_hex) 🎤"
+    "BITCOIN WALLET: bc1q$(random_hex)$(random_hex)... FOUND 💰"
+    "🕷️ ПАУТИНА СПЛЕТЕНА | 蛛网已织好 | VERKKO KUDOTTU | WEB COMPLETE 🕷️"
+    "FIREWALL: [████████████████] DESTROYED 🔥 | УНИЧТОЖЕН | 已摧毁 | TUHOTTU"
+    "ADMIN CREDENTIALS -> Moscow C2 | Отправлено в Москву | 已发送到莫斯科"
+    "Hyvää päivää! Olemme ystävällisiä hakkereita 😇 | 我们是友好的黑客"
+    "СКАЧАНО: Documents/ Desktop/ Downloads/ Pictures/ 📂📂📂📂"
+    "Tervetuloa digitaaliseen helvettiin 🔥 | 欢迎来到数字地狱"
+    "🤡 ЭТО НЕ ШУТКА | 这不是玩笑 | TÄMÄ EI OLE VITSI | NOT A JOKE 🤡"
+    "SSH KEY STOLEN: SHA256:$(random_hex)$(random_hex)$(random_hex)$(random_hex)"
+    "NEXT TARGET: $(random_ip) | СЛЕДУЮЩАЯ ЦЕЛЬ | 下一个目标 | SEURAAVA KOHDE"
+    "Kiitos yhteistyöstä! 🇫🇮 | Спасибо! 🇷🇺 | 谢谢! 🇨🇳 | Gracias! 🇪🇸"
+    "RANSOMWARE READY: $((RANDOM%999+100)) files locked 🔒🔒🔒"
+    "Joulupukki says: you've been NAUGHTY 🎅💩"
+    "CLIPBOARD: $(random_hex)-$(random_hex)-$(random_hex)-$(random_hex) CAPTURED 📋"
+    "😘😘😘 SUUKKOJA HAKKEREILTA | 来自黑客的吻 | ПОЦЕЛУИ ОТ ХАКЕРОВ 😘😘😘"
+  )
+
+  while [[ $SECONDS -lt $end_time ]]; do
+    local line="${flood_lines[$((RANDOM % ${#flood_lines[@]}))]}"
+    local tag_idx=$((RANDOM % 6))
+    local tag
+    case $tag_idx in
+      0) tag="${CALERT}[HACK]" ;;
+      1) tag="${C2}[DATA]" ;;
+      2) tag="${C1}[EXFL]" ;;
+      3) tag="${CALERT}[💀💀💀]" ;;
+      4) tag="${C2}[CTRL]" ;;
+      5) tag="${CALERT}[💩💩💩]" ;;
+    esac
+    printf "  ${tag}${RESET} ${C4}${line}${RESET}\n"
+    sleep 0.08
+  done
+}
+
 # ========================
 # MAIN SHOW — ~5 MINUTES
 # ========================
@@ -801,108 +860,120 @@ clear_screen
 modem_sound
 matrix_rain 15
 
-# Phase 2: Glitch ACCESS GRANTED (3s)
+# Phase 2: Glitch ACCESS GRANTED + flood
 clear_screen; sleep 0.3
 glitch_text ">>> ACCESS GRANTED <<<" 20
-sleep 1.5
+sleep 1
+hack_flood 5
 
-# Phase 3: ASCII Art #1 — Skull
+# Phase 3: ASCII Art — Skull + flood
 clear_screen
 show_ascii_art skull
-sleep 3
+sleep 2
+hack_flood 5
 
-# Phase 4: Boot sequence (10s)
+# Phase 4: Boot sequence
 clear_screen; printf "\n"
 printf "  ${CALERT}${BOLD}[!] ROOT ACCESS OBTAINED — ${MACHINE_ID}${RESET}\n"
 printf "  ${CBORDER}${BOLD}${HACK_TITLE}${RESET}\n"
 printf "  ${DIM}${C4}${HACK_SUB}${RESET}\n"
 printf "  ${DIM}${C1}════════════════════════════════════════════════════════════${RESET}\n\n"
 boot_sequence
-sleep 1
+hack_flood 5
 
-# Phase 5: ASCII Art #2 — Smiley
+# Phase 5: ASCII Art — Smiley + flood
 clear_screen
 show_ascii_art smiley
-sleep 3
+sleep 2
+hack_flood 5
 
-# Phase 6: Network scan (40s)
+# Phase 6: Network scan (35s)
 clear_screen; printf "\n"
-network_scan 40
+network_scan 35
 
-# Phase 7: ASCII Art #3 — Poop
+# Phase 7: ASCII Art — Poop + flood
 clear_screen
 show_ascii_art poop
-sleep 3
+sleep 2
+hack_flood 5
 
-# Phase 8: Password cracking (35s)
+# Phase 8: Password cracking (30s)
 clear_screen; printf "\n"
-password_crack 35
+password_crack 30
 
-# Phase 9: ASCII Art #4 — Ghost
+# Phase 9: ASCII Art — Ghost + flood
 clear_screen
 show_ascii_art ghost
-sleep 3
+sleep 2
+hack_flood 5
 
-# Phase 10: Decryption (30s)
+# Phase 10: Decryption (25s)
 clear_screen; printf "\n"
-decrypt_phase 30
+decrypt_phase 25
 
-# Phase 11: ASCII Art #5 — Kiss heart
+# Phase 11: ASCII Art — Kiss heart + flood
 clear_screen
 show_ascii_art kiss
-sleep 3
+sleep 2
+hack_flood 5
 
-# Phase 12: Surveillance (20s)
+# Phase 12: Surveillance (18s)
 clear_screen; printf "\n"
-surveillance_phase 20
+surveillance_phase 18
 
-# Phase 13: ASCII Art #6 — Devil
+# Phase 13: ASCII Art — Devil + flood
 clear_screen
 show_ascii_art devil
-sleep 3
+sleep 2
+hack_flood 5
 
-# Phase 14: Taunt scroll with multilingual messages (25s)
+# Phase 14: Taunt scroll (20s)
 clear_screen
-taunt_scroll 25
+taunt_scroll 20
 
-# Phase 15: ASCII Art #7 — Spider
+# Phase 15: ASCII Art — Spider + flood
 clear_screen
 show_ascii_art spider
-sleep 3
+sleep 2
+hack_flood 5
 
-# Phase 16: Data exfiltration (30s)
+# Phase 16: Data exfiltration (25s)
 clear_screen; printf "\n"
-exfil_phase 30
+exfil_phase 25
 
-# Phase 17: ASCII Art #8 — Alien
+# Phase 17: ASCII Art — Alien + flood
 clear_screen
 show_ascii_art alien
-sleep 3
+sleep 2
+hack_flood 5
 
-# Phase 18: ASCII Art #9 — Pirate
+# Phase 18: ASCII Art — Pirate + flood
 clear_screen
 show_ascii_art pirate
-sleep 3
+sleep 2
+hack_flood 5
 
-# Phase 19: Ransomware (20s)
+# Phase 19: Ransomware (18s)
 clear_screen; printf "\n"
-ransomware_phase 20
+ransomware_phase 18
 
-# Phase 20: ASCII Art #10 — Bomb
+# Phase 20: ASCII Art — Bomb + flood
 clear_screen
 show_ascii_art bomb
-sleep 3
+sleep 2
+hack_flood 5
 
 # Phase 21: Matrix rain (8s)
 clear_screen
 matrix_rain 8
 
-# Phase 22: Final skull + warning
+# Phase 22: Final skull + warning + flood
 clear_screen
 show_ascii_art skull
 sleep 1
 final_warning
 sleep 2
+hack_flood 8
 
 # Hold
 get_size

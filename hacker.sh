@@ -1014,34 +1014,6 @@ cleanup() {
 trap cleanup EXIT
 
 hide_cursor
-
-# Phase 0: Open Altadis website fullscreen as decoy
-osascript -e '
-tell application "Safari"
-  activate
-  open location "https://www.altadis.com"
-  delay 2
-  tell application "System Events" to tell process "Safari"
-    set frontmost to true
-    keystroke "f" using {control down, command down}
-  end tell
-end tell' 2>/dev/null
-
-# Let them see Altadis for a few seconds before the hack starts
-sleep 5
-
-# Now take over with Terminal fullscreen
-osascript -e '
-tell application "Terminal"
-  activate
-  delay 0.3
-  tell application "System Events" to tell process "Terminal"
-    set frontmost to true
-    keystroke "f" using {control down, command down}
-  end tell
-end tell' 2>/dev/null
-
-sleep 1
 printf "${BG_BLACK}"
 clear_screen
 

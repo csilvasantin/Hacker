@@ -1,95 +1,109 @@
-# Hacker — AdmiraNext Prank v8
+# Hacker — AdmiraNext Council Hack Simulation
 
-Simula un hackeo estilo Matrix en todos los equipos de AdmiraNext simultaneamente, controlado con dos teclas desde cualquier ordenador.
+Simulacion cinematografica de hackeo en los 8 equipos del Consejo de AdmiraNext. Se lanza remotamente desde cualquier maquina con Tailscale (PC Windows, Mac, etc.) sin necesidad de acceso fisico.
 
-## Lanzamiento rapido (copiar y pegar en Terminal)
+## Lanzamiento rapido
 
 ```bash
-curl -sL https://raw.githubusercontent.com/csilvasantin/Hacker/main/controller.sh -o /tmp/controller.sh && chmod +x /tmp/controller.sh && /tmp/controller.sh
+# Desde cualquier maquina con SSH y Tailscale:
+bash launch_remote.sh
 ```
 
-Esto funciona desde **cualquier equipo** del grupo AdmiraNext. Auto-detecta en que maquina estas.
+Auto-detecta que maquinas estan online y lanza en todas las disponibles.
 
-## Controles
+## Que hace el show
 
-| Tecla | Accion |
-|---|---|
-| **Z** | Abre Altadis en todos → lanza el hackeo en los 4 equipos |
-| **Q** | Mata el hackeo en todos y restaura Altadis a pantalla completa |
+### Fases cinematograficas (~3-4 minutos)
 
-## Que hace el show (~5 minutos)
+1. **Escena de pelicula** — Arte ASCII de una escena iconica (WOPR de WarGames, HAL 9000, Terminator T-800, Blade Runner, Nostromo de Alien, Death Star, The Matrix, Tron Grid)
+2. **Hardware Fingerprint** — Lee datos REALES del equipo (Model, Chip, Serial, UUID, WiFi, macOS version) y los muestra en un panel
+3. **Exploit Framework** — Barras de progreso cargando modulos (rootkit, payload, C2 beacon...)
+4. **Network Topology** — Mapa ASCII de los 8 consejeros con IPs reales, marca "YOU ARE HERE"
+5. **Data Exfiltration** — Barras de progreso por base de datos + tabla de archivos sensibles
+6. **Persistence** — Panel de movimiento lateral y backdoor instalado
+7. **Loop infinito** — Rota entre 135 citas de peliculas sci-fi y 12 ASCII arts, con transiciones de codigo en 6 columnas
 
-### 27 fases con 4 temas visuales distintos
+### Lluvia de codigo (transiciones)
 
-1. Sonido de modem 56k de los noventa
-2. Lluvia de caracteres Matrix (diferentes por equipo)
-3. "ACCESS GRANTED" con efecto glitch
-4. 10 ASCII arts: calavera, poop, smiley, corazon/besos, fantasma, diablo, bomba, arana, alien, pirata
-5. Boot sequence de exploit framework
-6. Escaneo de redes con ping, traceroute, netstat
-7. Graficos ASCII de topologia de red (4 tipos)
-8. Crackeo de passwords estilo hashcat
-9. Descifrado de archivos AES-256
-10. Activacion de camara, micro, sensores
-11. Exfiltracion de datos por TOR/DNS tunnel
-12. Ransomware cifrando archivos
-13. Mensajes en ruso, chino y finlandes con emojis
-14. Calavera final + mensaje de rescate en BTC
-15. Al pulsar tecla: "Tranquilo... era broma del equipo AdmiraNext"
+Entre cada fase, la pantalla se llena con 6 columnas de codigo real en colores distintos:
 
-### Texto sin parar
+| Color | Columna | Ejemplo |
+|-------|---------|---------|
+| Verde | Lenguaje clasico 1 | Assembly, C, C++, Pascal, JavaScript |
+| Cyan | Lenguaje clasico 2 | (otro del grupo anterior) |
+| Amarillo | Lingo | Macromedia Director (1988-2017) |
+| Magenta | Lenguaje moderno | Rust, Go, Swift, Kotlin, TypeScript, Zig, Python, Ruby |
+| Blanco | IA/ML | PyTorch, TensorFlow, LangChain, Scikit-learn |
+| Rojo | Machine Code | Opcodes x86-64 |
 
-Despues de cada dibujo ASCII hay una rafaga de texto multilingue para que la pantalla **nunca quede vacia ni negra**.
+Cabecera con nombre del lenguaje, creador y ano de creacion.
 
-## Equipos y temas
+### Velocidad diferente por maquina
 
-| Equipo | SSH User | Tailscale IP | Tema | Idioma | Grupo ficticio |
-|---|---|---|---|---|---|
-| MacBook Air Nines | csilvasantin | 100.76.96.50 | Verde Matrix clasico | Ruso | Krasnaya Zvezda (GRU) |
-| MacBook Pro Negro 14 | csilvasantin | 100.101.192.1 | Rojo/ambar cyberpunk | Chino | PLA Unit 61398 (APT1) |
-| MacBook Air 16 (DG) | Carlos | 100.99.176.126 | Azul/hielo frio | Ruso | FSB Frozen Bear |
-| Mac Mini | csilvasantin | 100.74.101.14 | Purpura/neon darknet | Chino | Shadow Net Zero Day |
+| Consejero | Velocidad |
+|-----------|-----------|
+| CEO (Steve Jobs) | 0.01s — mas rapido |
+| CTO (Steve Wozniak) | 0.02s |
+| COO (Tim Cook) | 0.03s |
+| CFO (Warren Buffett) | 0.04s |
+| CCO (Walt Disney) | 0.05s |
+| CDO (Dieter Rams) | 0.06s |
+| CXO (Howard Schultz) | 0.07s |
+| CSO (George Lucas) | 0.08s — mas lento |
+
+### Audio
+
+Sonido de modem 56k al inicio, con variacion de frecuencia por maquina (8 perfiles distintos).
+
+## Consejo → Maquinas → Perfiles
+
+| Silla | Leyenda | Maquina | IP Tailscale | Terminal Profile | Escena pelicula |
+|-------|---------|---------|-------------|-----------------|-----------------|
+| CEO | Steve Jobs | MacBook Air 16 | 100.99.176.126 | Homebrew | WarGames (WOPR) |
+| CTO | Steve Wozniak | MacBook Pro Negro 14 | 100.101.192.1 | Red Sands | 2001 (HAL 9000) |
+| COO | Tim Cook | MacBook Air Plata | 100.114.113.88 | Ocean | Terminator (T-800) |
+| CFO | Warren Buffett | Mac Mini | 100.74.101.14 | Pro | Blade Runner |
+| CCO | Walt Disney | MacBook Air Blanco | 100.75.118.75 | Novel | Alien (Nostromo) |
+| CDO | Dieter Rams | MacBook Air Azul | 100.84.81.45 | Silver Aerogel | Star Wars (Death Star) |
+| CXO | Howard Schultz | AdmiraTwin (PC) | 100.121.18.12 | Grass | The Matrix |
+| CSO | George Lucas | MacBook Air Crema | 100.110.80.2 | Man Page | Tron (Grid) |
 
 ## Archivos
 
-| Archivo | Descripcion |
-|---|---|
-| `controller.sh` | Controlador central — ejecutar desde cualquier equipo |
-| `hacker.sh` | Animacion del hackeo (se descarga automaticamente) |
-| `launch_remote.sh` | Lanzador legacy (sin Altadis ni controles Z/Q) |
+| Archivo | Repo | Descripcion |
+|---------|------|-------------|
+| `launch_remote.sh` | Hacker | Lanzador remoto — detecta online, sube scripts, lanza |
+| `hack-sim.sh` | AdmiraNext-Team/ops | Script principal de la simulacion |
+| `hack-open-terminal.sh` | AdmiraNext-Team/ops | Abre Terminal con perfil unico por maquina |
+| `modem-sound.py` | AdmiraNext-Team/ops | Genera sonido de modem con variacion por seed |
+| `controller.sh` | Hacker | Controlador legacy con teclas Z/Q |
 
 ## Requisitos
 
-- macOS con Terminal y Safari
+- macOS con Terminal
 - Tailscale instalado y conectado (red: tail48b61c.ts.net)
-- SSH habilitado entre equipos (claves ya configuradas)
-- curl (preinstalado en macOS)
+- SSH habilitado con claves configuradas
+- Permisos de Accesibilidad para Terminal (para fullscreen)
 
-## SSH — Configuracion actual
+## SSH — Configuracion
 
-Todos los equipos tienen la clave publica del Mac Mini en `~/.ssh/authorized_keys`.
-
-Conexion desde cualquier equipo a otro:
-```bash
-# Via Tailscale proxy (para hostnames)
-ssh -o ProxyCommand="tailscale nc %h %p" csilvasantin@macbookairnines
-
-# Via IP directa (para macbookair16)
-ssh Carlos@100.99.176.126
+Clave publica del PC Windows (AdmiraTwin) en `~/.ssh/authorized_keys` de cada Mac:
+```
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMq4yq+lHxOZj00VR/zJJZOifMGUps3bUZigIs/oYcNH admiratwin-windows
 ```
 
-## Preparacion para demo en oficina
+Clave publica del Mac Mini tambien configurada en todos.
 
-1. Asegurate de que todos los equipos estan encendidos y conectados a Tailscale
-2. Verifica con `tailscale status` que aparecen online
-3. Abre Terminal en cualquiera de los equipos
-4. Pega el comando de lanzamiento rapido (arriba)
-5. Pulsa **Z** cuando estes listo para el show
-6. Pulsa **Q** para parar y dejar Altadis en pantalla
+## Preparacion para demo
+
+1. Verificar equipos online: `tailscale status`
+2. Ejecutar: `bash launch_remote.sh`
+3. Esperar a que todos muestren LAUNCHED
+4. Para parar: las maquinas quedan en loop de citas — cerrar Terminal o matar proceso
 
 ## Troubleshooting
 
-- **No detecta mi equipo**: El controller preguntara manualmente
-- **Un equipo no responde**: Verificar que Tailscale esta activo (`tailscale status`)
-- **SSH rechazado**: Verificar Remote Login activo en Preferencias del Sistema
-- **No se pone fullscreen**: Dar permisos de Accesibilidad a Terminal en Ajustes > Privacidad
+- **No se pone fullscreen**: Activar Accesibilidad para Terminal en Ajustes > Privacidad > Accesibilidad
+- **Script viejo cacheado**: Los scripts se suben por SCP directo o se descargan de GitHub. Si GitHub sirve version vieja, usar SCP
+- **Un equipo no responde**: Verificar `tailscale status` y SSH con `ssh csilvasantin@<IP> "echo ok"`
+- **SSH rechazado**: Anadir clave publica a `~/.ssh/authorized_keys` del Mac

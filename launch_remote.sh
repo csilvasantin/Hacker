@@ -30,7 +30,7 @@ declare -a TARGETS=(
   "MacBookProNegro14|csilvasantin|100.101.192.1|macbookpronegro14"
 )
 
-SCRIPT_URL="https://raw.githubusercontent.com/csilvasantin/Hacker/main/hacker.sh"
+SCRIPT_URL="https://raw.githubusercontent.com/csilvasantin/AdmiraNext-Team/main/ops/hack-sim.sh"
 OPENER_URL="https://raw.githubusercontent.com/csilvasantin/AdmiraNext-Team/main/ops/hack-open-terminal.sh"
 
 TOTAL=${#TARGETS[@]}

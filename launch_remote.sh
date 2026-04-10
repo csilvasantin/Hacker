@@ -2,6 +2,7 @@
 # ============================================================
 # LAUNCH_REMOTE.SH — Deploy hacker prank to all AdmiraNext machines
 # Run from any machine with SSH access via Tailscale (PC, Mac Mini, etc.)
+# Each machine opens Terminal with a unique profile style.
 # ============================================================
 
 GREEN='\033[1;32m'
@@ -9,6 +10,8 @@ RED='\033[1;31m'
 YELLOW='\033[1;33m'
 DIM='\033[0;37m'
 RESET='\033[0m'
+
+SSH_OPTS="-o ConnectTimeout=5 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes"
 
 echo ""
 echo -e "${RED}  ╔═══════════════════════════════════════════╗${RESET}"
@@ -28,6 +31,7 @@ declare -a TARGETS=(
 )
 
 SCRIPT_URL="https://raw.githubusercontent.com/csilvasantin/Hacker/main/hacker.sh"
+OPENER_URL="https://raw.githubusercontent.com/csilvasantin/AdmiraNext-Team/main/ops/hack-open-terminal.sh"
 
 TOTAL=${#TARGETS[@]}
 COUNT=0
@@ -40,29 +44,17 @@ for target in "${TARGETS[@]}"; do
   echo -ne "${YELLOW}  [${COUNT}/${TOTAL}] ${name} (${ip})...${RESET} "
 
   # Check if reachable
-  if ! ssh -o ConnectTimeout=4 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes "${user}@${ip}" "echo ok" &>/dev/null; then
+  if ! ssh $SSH_OPTS "${user}@${ip}" "echo ok" &>/dev/null; then
     echo -e "${DIM}offline${RESET}"
     FAIL=$((FAIL + 1))
     continue
   fi
 
-  # Deploy and launch
-  ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes "${user}@${ip}" "
-    curl -sL '${SCRIPT_URL}' -o /tmp/hacker_remote.sh && chmod +x /tmp/hacker_remote.sh
-    osascript -e '
-    tell application \"Terminal\"
-      activate
-      do script \"clear && /tmp/hacker_remote.sh ${machine_id} ${ip}\"
-      delay 0.5
-      tell front window
-        set bounds to {0, 0, 2560, 1600}
-      end tell
-      delay 0.3
-      tell application \"System Events\" to tell process \"Terminal\"
-        set frontmost to true
-        keystroke \"f\" using {control down, command down}
-      end tell
-    end tell'
+  # Upload hack script + opener, then launch with unique Terminal profile
+  ssh $SSH_OPTS "${user}@${ip}" "
+    curl -sL '${SCRIPT_URL}' -o /tmp/hack-sim.sh && chmod +x /tmp/hack-sim.sh
+    curl -sL '${OPENER_URL}' -o /tmp/hack-open-terminal.sh && chmod +x /tmp/hack-open-terminal.sh
+    bash /tmp/hack-open-terminal.sh '${machine_id}' '${ip}'
   " 2>/dev/null &
 
   echo -e "${GREEN}LAUNCHED${RESET}"

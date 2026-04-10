@@ -52,8 +52,8 @@ for target in "${TARGETS[@]}"; do
 
   # Upload hack script + opener, then launch with unique Terminal profile
   ssh $SSH_OPTS "${user}@${ip}" "
-    curl -sL -H 'Cache-Control: no-cache' '${SCRIPT_URL}?t=\$(date +%s)' -o /tmp/hack-sim.sh && chmod +x /tmp/hack-sim.sh
-    curl -sL -H 'Cache-Control: no-cache' '${OPENER_URL}?t=\$(date +%s)' -o /tmp/hack-open-terminal.sh && chmod +x /tmp/hack-open-terminal.sh
+    curl -sL '${SCRIPT_URL}' -o /tmp/hack-sim.sh && chmod +x /tmp/hack-sim.sh
+    curl -sL '${OPENER_URL}' -o /tmp/hack-open-terminal.sh && chmod +x /tmp/hack-open-terminal.sh
     bash /tmp/hack-open-terminal.sh '${machine_id}' '${ip}'
   " 2>/dev/null &
 

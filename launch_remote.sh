@@ -33,10 +33,27 @@ declare -a TARGETS=(
   "DGXSpark|bitsatoms|100.119.58.65|dgx-spark"
 )
 
-SCRIPT_URL="https://raw.githubusercontent.com/csilvasantin/AdmiraNext-Team/main/ops/hack-sim.sh"
-OPENER_URL="https://raw.githubusercontent.com/csilvasantin/AdmiraNext-Team/main/ops/hack-open-terminal.sh"
-OPENER_LINUX_URL="https://raw.githubusercontent.com/csilvasantin/AdmiraNext-Team/main/ops/hack-open-terminal-linux.sh"
-MODEM_URL="https://raw.githubusercontent.com/csilvasantin/AdmiraNext-Team/main/ops/modem-sound.py"
+# ── Origen de los scripts ──
+# El repo de ops (antes AdmiraNext-Team, ahora 03.-ControlCodexClaude) es PRIVADO, así
+# que raw.githubusercontent devuelve 404: NO se puede depender de la descarga pública.
+# Entregamos por SCP desde una copia local de ops/ (este equipo tiene SSH a toda la flota).
+# Si no hay copia local, se intenta curl como último recurso (por si el repo vuelve a ser público).
+OPS_CANDIDATES=(
+  "$HOME/Documents/New project/csilvasantin-repos/AdmiraNext-Team/ops"
+  "$HOME/Documents/New project/csilvasantin-repos/03.-ControlCodexClaude/ops"
+  "$HOME/Claude/AdmiraNext-Team/ops"
+)
+OPS_DIR=""
+for _c in "${OPS_CANDIDATES[@]}"; do
+  [ -f "$_c/hack-sim.sh" ] && { OPS_DIR="$_c"; break; }
+done
+RAW_BASE="https://raw.githubusercontent.com/csilvasantin/03.-ControlCodexClaude/main/ops"
+
+if [ -n "$OPS_DIR" ]; then
+  echo -e "${DIM}  ops/ local: ${OPS_DIR}${RESET}"
+else
+  echo -e "${YELLOW}  ⚠ sin copia local de ops/ — intentaré curl (repo privado ⇒ puede fallar)${RESET}"
+fi
 
 TOTAL=${#TARGETS[@]}
 COUNT=0
@@ -55,18 +72,30 @@ for target in "${TARGETS[@]}"; do
     continue
   fi
 
-  # Subir hack-sim + modem + el opener del SO correcto (Darwin=Terminal.app, Linux=gnome-terminal)
-  ssh $SSH_OPTS "${user}@${ip}" "
-    curl -sL '${SCRIPT_URL}' -o /tmp/hack-sim.sh && chmod +x /tmp/hack-sim.sh
-    curl -sL '${MODEM_URL}'  -o /tmp/modem-sound.py 2>/dev/null
-    if [ \"\$(uname -s)\" = 'Linux' ]; then
-      curl -sL '${OPENER_LINUX_URL}' -o /tmp/hack-open-terminal-linux.sh && chmod +x /tmp/hack-open-terminal-linux.sh
-      bash /tmp/hack-open-terminal-linux.sh '${machine_id}' '${ip}'
-    else
-      curl -sL '${OPENER_URL}' -o /tmp/hack-open-terminal.sh && chmod +x /tmp/hack-open-terminal.sh
-      bash /tmp/hack-open-terminal.sh '${machine_id}' '${ip}'
-    fi
-  " 2>/dev/null &
+  # Entrega: SCP desde ops/ local (repo privado) con fallback a curl.
+  if [ -n "$OPS_DIR" ]; then
+    scp $SSH_OPTS -q \
+      "$OPS_DIR/hack-sim.sh" "$OPS_DIR/hack-open-terminal.sh" \
+      "$OPS_DIR/hack-open-terminal-linux.sh" "$OPS_DIR/modem-sound.py" \
+      "${user}@${ip}:/tmp/" 2>/dev/null
+    ssh $SSH_OPTS "${user}@${ip}" "
+      chmod +x /tmp/hack-sim.sh /tmp/hack-open-terminal.sh /tmp/hack-open-terminal-linux.sh 2>/dev/null
+      if [ \"\$(uname -s)\" = 'Linux' ]; then bash /tmp/hack-open-terminal-linux.sh '${machine_id}' '${ip}'
+      else bash /tmp/hack-open-terminal.sh '${machine_id}' '${ip}'; fi
+    " 2>/dev/null &
+  else
+    ssh $SSH_OPTS "${user}@${ip}" "
+      curl -sL '${RAW_BASE}/hack-sim.sh' -o /tmp/hack-sim.sh && chmod +x /tmp/hack-sim.sh
+      curl -sL '${RAW_BASE}/modem-sound.py' -o /tmp/modem-sound.py 2>/dev/null
+      if [ \"\$(uname -s)\" = 'Linux' ]; then
+        curl -sL '${RAW_BASE}/hack-open-terminal-linux.sh' -o /tmp/hack-open-terminal-linux.sh && chmod +x /tmp/hack-open-terminal-linux.sh
+        bash /tmp/hack-open-terminal-linux.sh '${machine_id}' '${ip}'
+      else
+        curl -sL '${RAW_BASE}/hack-open-terminal.sh' -o /tmp/hack-open-terminal.sh && chmod +x /tmp/hack-open-terminal.sh
+        bash /tmp/hack-open-terminal.sh '${machine_id}' '${ip}'
+      fi
+    " 2>/dev/null &
+  fi
 
   echo -e "${GREEN}LAUNCHED${RESET}"
   OK=$((OK + 1))

@@ -41,8 +41,10 @@ for target in "${TARGETS[@]}"; do
     pkill -f hack-sim.sh 2>/dev/null
     pkill -f hacker_remote 2>/dev/null
     if [ \"\$(uname -s)\" = 'Linux' ]; then
-      pkill -f 'gnome-terminal.*hack-sim' 2>/dev/null
-      pkill -x gnome-terminal-server 2>/dev/null
+      export DISPLAY=\${DISPLAY:-:0}
+      for X in /run/user/\$(id -u)/gdm/Xauthority \$HOME/.Xauthority; do [ -r \"\$X\" ] && export XAUTHORITY=\"\$X\" && break; done
+      command -v wmctrl >/dev/null && wmctrl -l 2>/dev/null | awk '/ADMIRA-HACKEO/{print \$1}' | xargs -r -n1 wmctrl -i -c 2>/dev/null
+      pkill -f 'hack-open-terminal-linux' 2>/dev/null
     else
       osascript -e 'tell application \"Terminal\" to quit' 2>/dev/null
     fi

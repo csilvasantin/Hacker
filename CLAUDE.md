@@ -24,11 +24,12 @@ Sistema de demo/broma que simula un ataque cibernetico en todos los equipos simu
 | MacBook Air Azul (CDO) | 100.84.81.45 | 5 | Silver Aerogel | Star Wars | Lingo+C++ | TensorFlow | 0.06s |
 | AdmiraTwin PC (CXO) | 100.121.18.12 | 6 | Grass | Matrix | ASM+Pascal | LangChain | 0.07s |
 | MacBook Air Crema (CSO) | 100.110.80.2 | 7 | Man Page | Tron | C+JS | Scikit-learn | 0.08s |
-| DGX Spark (Linux, GPU) | 100.119.58.65 | 6 | gnome-terminal | Matrix | ASM+Pascal | LangChain | 0.07s |
+| DGX Spark (Linux, GPU) | 100.119.58.65 | 6 | Homebrew (gnome-terminal) | Matrix | ASM+Pascal | LangChain | 0.07s |
 
 ## Nodos Linux (DGX Spark, ThinkStation…)
 - Usuario SSH del DGX Spark = **bitsatoms** (no csilvasantin). SSH directo funciona (Tailscale SSH en `accept`).
 - El opener macOS (Terminal.app/osascript) NO vale en Linux → **hack-open-terminal-linux.sh**: descubre el entorno de la sesión gráfica (DISPLAY/XAUTHORITY/DBUS del proceso gnome-shell), abre `gnome-terminal --full-screen` y lo trae al frente con wmctrl/xdotool (fullscreen+above+activate) con un keeper acotado (~8 s).
+- **Look & feel = perfil «Homebrew»** (verde sobre negro), equivalente al perfil de Terminal.app del opener macOS. El opener lo crea por dconf (idempotente) y lanza con `--profile=Homebrew`. OJO: `dconf read/write` necesita `DBUS_SESSION_BUS_ADDRESS` exportado (si no: «Cannot autolaunch D-Bus without X11 $DISPLAY» y devuelve vacío) — al verificar por SSH, exportar DISPLAY+XAUTHORITY+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1001/bus.
 - `launch_remote.sh` elige opener por `uname` remoto (Darwin vs Linux) y sube también modem-sound.py (ahora cae a aplay/paplay en Linux).
 - hack-sim.sh: el HARDWARE FINGERPRINT es cross-platform (Linux lee /proc & sysfs → Model, Chip, Cores, RAM, OS reales).
 - OJO kiosco: el DGX tiene autostart `~/kiosk-dashboard.sh` (Chromium --kiosk a localhost:11000) y a veces una sesión de navegador viva; compiten por el foreground. Para una toma sostenida del hackeo, pausar antes el kiosco.

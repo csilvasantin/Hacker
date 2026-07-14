@@ -26,6 +26,7 @@ declare -a TARGETS=(
   "MacBookAirPlata|csilvasantin|100.114.113.88"
   "MacMini|csilvasantin|100.74.101.14"
   "MacBookProNegro14|csilvasantin|100.101.192.1"
+  "DGXSpark|bitsatoms|100.119.58.65"
 )
 
 TOTAL=${#TARGETS[@]}
@@ -39,7 +40,12 @@ for target in "${TARGETS[@]}"; do
   ssh $SSH_OPTS "${user}@${ip}" "
     pkill -f hack-sim.sh 2>/dev/null
     pkill -f hacker_remote 2>/dev/null
-    osascript -e 'tell application \"Terminal\" to quit' 2>/dev/null
+    if [ \"\$(uname -s)\" = 'Linux' ]; then
+      pkill -f 'gnome-terminal.*hack-sim' 2>/dev/null
+      pkill -x gnome-terminal-server 2>/dev/null
+    else
+      osascript -e 'tell application \"Terminal\" to quit' 2>/dev/null
+    fi
     true
   " 2>/dev/null &
 

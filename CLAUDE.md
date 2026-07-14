@@ -24,9 +24,18 @@ Sistema de demo/broma que simula un ataque cibernetico en todos los equipos simu
 | MacBook Air Azul (CDO) | 100.84.81.45 | 5 | Silver Aerogel | Star Wars | Lingo+C++ | TensorFlow | 0.06s |
 | AdmiraTwin PC (CXO) | 100.121.18.12 | 6 | Grass | Matrix | ASM+Pascal | LangChain | 0.07s |
 | MacBook Air Crema (CSO) | 100.110.80.2 | 7 | Man Page | Tron | C+JS | Scikit-learn | 0.08s |
+| DGX Spark (Linux, GPU) | 100.119.58.65 | 6 | gnome-terminal | Matrix | ASM+Pascal | LangChain | 0.07s |
+
+## Nodos Linux (DGX Spark, ThinkStation…)
+- Usuario SSH del DGX Spark = **bitsatoms** (no csilvasantin). SSH directo funciona (Tailscale SSH en `accept`).
+- El opener macOS (Terminal.app/osascript) NO vale en Linux → **hack-open-terminal-linux.sh**: descubre el entorno de la sesión gráfica (DISPLAY/XAUTHORITY/DBUS del proceso gnome-shell), abre `gnome-terminal --full-screen` y lo trae al frente con wmctrl/xdotool (fullscreen+above+activate) con un keeper acotado (~8 s).
+- `launch_remote.sh` elige opener por `uname` remoto (Darwin vs Linux) y sube también modem-sound.py (ahora cae a aplay/paplay en Linux).
+- hack-sim.sh: el HARDWARE FINGERPRINT es cross-platform (Linux lee /proc & sysfs → Model, Chip, Cores, RAM, OS reales).
+- OJO kiosco: el DGX tiene autostart `~/kiosk-dashboard.sh` (Chromium --kiosk a localhost:11000) y a veces una sesión de navegador viva; compiten por el foreground. Para una toma sostenida del hackeo, pausar antes el kiosco.
 
 ## Notas para IAs
-- launch_remote.sh descarga scripts de GitHub raw — puede haber cache de hasta 5 min. Si necesitas la version inmediata, usar SCP directo
+- **El repo de ops (antes AdmiraNext-Team) es PRIVADO** (renombrado a 03.-ControlCodexClaude): raw.githubusercontent da 404. Por eso launch_remote.sh ENTREGA POR SCP desde una copia local de ops/ (con fallback a curl si el repo vuelve a ser público). Actualizar los raw URLs si cambia el nombre/visibilidad.
+- launch_remote.sh (variante curl heredada) descarga scripts de GitHub raw — puede haber cache de hasta 5 min. Si necesitas la version inmediata, usar SCP directo
 - Las claves SSH del PC Windows (admiratwin-windows) y del Mac Mini estan configuradas en todos los Macs
 - El ancho de terminal (COLS) no se detecta bien por SSH — el script usa osascript para leer el ancho real de la ventana de Terminal, con fallback a 200
 - Cada maquina recibe un ART_SEED (0-7) como tercer argumento que determina todo el contenido unico
